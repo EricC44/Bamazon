@@ -43,3 +43,5 @@ VALUES ('Spiderman: Into the Spider-Verse', 'Movies & TV', 22.50, 27),
        ('Franklin Sports Bocce Ball Set ', 'Sports & Outdoors', 39.99, 100),
        ('NTK Sporting 12 Person Tent', 'Sports & Outdoors', 438.80, 86),
        ('Pacific Play Tents Playchute 10 Foot Parachute', 'Sports & Outdoors', 24.98, 187)
+
+       SELECT * FROM Bamazon.products
