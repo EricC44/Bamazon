@@ -9,7 +9,7 @@ var connection = mySQL.createConnection({
   
   user: 'root',
 
-  password: '',
+  password:'',
 
   database: 'bamazon'
 });
@@ -50,26 +50,47 @@ function inquirePurchase() {
         console.log(`You have selected id = ${input.id} Quantity: ${input.quantity}`)
         
         var item = input.id;
-        //var quantity = input.quantity;
-
+        var quantity = input.quantity;
+        //Required query to select our items from our SQL database
         var querySQL = 'SELECT * FROM products WHERE ?';
-
+        //This connection query is for grabbing our data from our database or throw an error
         connection.query(querySQL, {id: item}, function(error, data) {
 
             if(error) throw error
-
+            //This part of the connection.query is if there is no error but the id number inputed did not exist
             if(data.length === 0) {
                 console.log('##########################################\n')
                 console.log('Hmm...Seems like I cant find the item number you are looking for...\n')
                 console.log('##########################################');
             }
+            //If there is no error and the item exists in the database it will display data
             else {
                 var product = data[0];
 
                 console.log(`Product: ${JSON.stringify(product)}`)
-                
+                //If there is enough stock it will give the user the option to buy it
                 if(quantity <= product.stock) {
                     console.log(`Ooh, you have chosen wisely, I like ${item} as well!`)
+                    //This is to update mySQL's values
+                    var updateSQL = `UPDATE products SET stock = ${product.stock - quantity} WHERE id = ${item}`;
+                    
+                    connection.query(updateSQL, function(error, data) {
+                        if(error) throw error
+
+                        console.log('###################################\n');
+                        console.log(`Your order has been placed! Your total comes to $${product.cost * quantity}\n`);
+                        console.log('Thank you for shopping at Bamazon, we hope to see you again!\n');
+                        console.log('###################################\n');
+
+                        connection.end();
+                    });
+                }
+                else {
+                    console.log('##################################\n');
+                    console.log(`\nUnfortunately, there is not enough product to buy ${quantity} of the ${item}, please update your order and try again!\n`);
+                    console.log('##################################\n');
+
+                    //Here will go an updated display of buyable objects
                 }
             }
 
