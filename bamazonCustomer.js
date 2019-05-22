@@ -3,7 +3,7 @@ var inquirer = require('inquirer');
 var mySQL = require('mysql');
 //This is creating the connection to mysql
 var connection = mySQL.createConnection({
-  host: 'Local Connection',
+  host: 'localhost',
   
   port: 3306,
   
@@ -11,7 +11,7 @@ var connection = mySQL.createConnection({
 
   password: '',
 
-  database: 'Bamazon'
+  database: 'bamazon'
 });
 inquirePurchase();
 //This function checks the inputed data to make sure that the numbers inputed are not negative and greater than 0
@@ -48,7 +48,32 @@ function inquirePurchase() {
     ]).then(function(input) {
         //Got the inquirer to return the needed values
         console.log(`You have selected id = ${input.id} Quantity: ${input.quantity}`)
-        //connection.end()
+        
+        var item = input.id;
+        //var quantity = input.quantity;
+
+        var querySQL = 'SELECT * FROM products WHERE ?';
+
+        connection.query(querySQL, {id: item}, function(error, data) {
+
+            if(error) throw error
+
+            if(data.length === 0) {
+                console.log('##########################################\n')
+                console.log('Hmm...Seems like I cant find the item number you are looking for...\n')
+                console.log('##########################################');
+            }
+            else {
+                var product = data[0];
+
+                console.log(`Product: ${JSON.stringify(product)}`)
+                
+                if(quantity <= product.stock) {
+                    console.log(`Ooh, you have chosen wisely, I like ${item} as well!`)
+                }
+            }
+
+        });
     });
 
 }
