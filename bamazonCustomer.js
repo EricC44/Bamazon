@@ -13,7 +13,12 @@ var connection = mySQL.createConnection({
 
   database: 'bamazon'
 });
-inquirePurchase();
+//inquirePurchase();
+//This function is to simply start up the code
+function start() {
+    displayInv();
+}
+
 //This function checks the inputed data to make sure that the numbers inputed are not negative and greater than 0
 function ChkInput(value) {
     var number = Number.isInteger(parseFloat(value));
@@ -67,13 +72,13 @@ function inquirePurchase() {
             else {
                 var product = data[0];
 
-                console.log(`Product: ${JSON.stringify(product)}`)
+                //console.log(`Product: ${JSON.stringify(product)}`)
                 //If there is enough stock it will give the user the option to buy it
                 if(quantity <= product.stock) {
                     console.log(`Ooh, you have chosen wisely, I like ${item} as well!`)
                     //This is to update mySQL's values
                     var updateSQL = `UPDATE products SET stock = ${product.stock - quantity} WHERE id = ${item}`;
-                    
+                    //Connection query to confirm our order in mysql and changes the values based on how much we order
                     connection.query(updateSQL, function(error, data) {
                         if(error) throw error
 
@@ -85,12 +90,13 @@ function inquirePurchase() {
                         connection.end();
                     });
                 }
+                //If the user tries to order more than what product is left in the inventory it will not allow the user to purchase the item
                 else {
                     console.log('##################################\n');
                     console.log(`\nUnfortunately, there is not enough product to buy ${quantity} of the ${item}, please update your order and try again!\n`);
                     console.log('##################################\n');
 
-                    //Here will go an updated display of buyable objects
+                    displayInv();
                 }
             }
 
@@ -98,3 +104,25 @@ function inquirePurchase() {
     });
 
 }
+//This function grabs our data from mySQL and displays the information on the console.log
+function displayInv() {
+    //Make a database query selector for mySQL
+    querySQL = 'SELECT * FROM products'
+    //Makes a mySQL query on the server
+    connection.query(querySQL, function(error, data) {
+        if(error) throw error;
+
+        console.log('################################');
+        console.log('\nCurrent Inventory In Bamazon...\n')
+        //This logs all of our values from mySQL and puts them in an organized table
+        for(i = 0; i < data.length; i++) {
+            console.log(`ID: ${data[i].id} | Product: ${data[i].product_name} | Department: ${data[i].department} | Price: ${data[i].cost} | Quantity: ${data[i].stock}`);
+            
+        }
+        console.log('\n---------------------------------------------------------------------\n')
+        //calls the inquire purchase function
+        inquirePurchase();
+    });
+}
+//callback to start the whole code
+start();
